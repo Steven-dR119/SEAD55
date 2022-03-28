@@ -1,5 +1,16 @@
 import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
+# Predetermined values for the aircraft / constants
+BEM = 9165  # [lbs]
+BEM_moment = 2672953.5  # [lbs-inch]
+x_mac = 261.45  # [inch]
+g0 = 9.80665  # [m/s**2]
+
+# Convert to imperial units
+lbs_to_kg = 0.45359237  # [-]
+inch_to_m = 0.0254  # [-]
 
 def calculate_cg(fuel_used, fuel_start, masses, data):
     """
@@ -31,15 +42,8 @@ def calculate_cg(fuel_used, fuel_start, masses, data):
     if fuel_used < 0 or fuel_start < 0 or any(x < 0 or y < 0 for x, y in zip(masses, data)):
         raise ValueError("Input must be positive")
 
-    # Predetermined values for the aircraft / constants
-    BEM = 9165  # [lbs]
-    BEM_moment = 2672953.5  # [lbs-inch]
-    x_mac = 261.45  # [inch]
-    g0 = 9.80665  # [m/s**2]
 
-    # Convert to imperial units
-    lbs_to_kg = 0.45359237  # [-]
-    inch_to_m = 0.0254  # [-]
+    
     fuel_used = fuel_used / g0 * 1 / lbs_to_kg  # [lbs]
     fuel_start = fuel_start / g0 * 1 / lbs_to_kg  # [lbs]
     masses = [m * 1 / lbs_to_kg for m in masses]  # [lbs]
@@ -85,6 +89,117 @@ def calculate_cg(fuel_used, fuel_start, masses, data):
 
     return xcg
 
+def loaddiagram():
+    #Constants
+    xcg_datum = 3.6576 #m
+    x_LEMAC = 22.866 #m
+    MAC = 3.48 #m
+    
+    #Weights
+    OEW = 23188 * g0                   #N 
+    fuel_weight = 8822 * g0            #N 
+    front_cargo_weight = 482.6792 *g0  #N
+    aft_cargo_weight = 1322.321*g0     #N
+    pass_weight = 10605 * g0            #N
+    no_pass = 100
+    no_chairsprow = 4
+    no_rows = int(no_pass / no_chairsprow)
+    
+    #locations
+    pass_part_start = 11.6846 #m
+    pass_part_end = 35.2796 #m
+    
+    
+    #cg_locations
+    xcg_oew = (24.258 - xcg_datum) / MAC
+    xcg_cargo_front = (15.5026 - xcg_datum) / MAC
+    xcg_cargo_aft = (26.10587 - xcg_datum) / MAC
+    xcg_fuel = (24.6575 - xcg_datum) / MAC
+    chair_pitch = (pass_part_end - pass_part_start) / (no_rows*MAC)
+    xcg_seats_btf = [(pass_part_end - xcg_datum)/MAC - 0.5 * chair_pitch]
+    xcg_seats_ftb = [(pass_part_start - xcg_datum)/MAC + 0.5 * chair_pitch]
+    for i in range(no_rows-1):
+        xcg_seats_btf.append(xcg_seats_btf[-1]-chair_pitch)
+        xcg_seats_ftb.append(xcg_seats_ftb[-1]+chair_pitch)
+    #Loading functions
+    OEW_point = [xcg_oew,OEW]
+    #add cargo
+    only_aft_point = (xcg_cargo_aft*aft_cargo_weight + xcg_oew*OEW)/(OEW + aft_cargo_weight)
+    only_front_point = (xcg_cargo_front*front_cargo_weight +xcg_oew*OEW)/(OEW + front_cargo_weight)
+    both_cargo_point = (xcg_cargo_aft*aft_cargo_weight + xcg_oew*OEW + xcg_cargo_front*front_cargo_weight)/(OEW + front_cargo_weight + aft_cargo_weight)
+    cargo_points = [[OEW_point[0], only_aft_point, both_cargo_point, only_front_point, OEW_point[0]],[OEW, OEW + front_cargo_weight, OEW + front_cargo_weight + aft_cargo_weight, OEW + aft_cargo_weight,OEW]]
+    
+    #Add passengers
+    #Window
+    two_pass_weight = (pass_weight/no_pass)*2
+    
+    window_pointsbtf = [[both_cargo_point],[OEW + front_cargo_weight + aft_cargo_weight]]
+    window_pointsftb = [[both_cargo_point],[OEW + front_cargo_weight + aft_cargo_weight]]
+    for i in range(no_rows):
+        new_weight = window_pointsbtf[1][-1] + two_pass_weight
+        window_pointsbtf[0].append((window_pointsbtf[0][-1]*window_pointsbtf[1][-1] + xcg_seats_btf[i]*two_pass_weight)/new_weight)
+        window_pointsbtf[1].append(new_weight)
+        window_pointsftb[0].append((window_pointsftb[0][-1]*window_pointsftb[1][-1] + xcg_seats_ftb[i]*two_pass_weight)/new_weight)
+        window_pointsftb[1].append(new_weight)
+    #Aisle
+    aisle_pointsbtf = [[window_pointsbtf[0][-1]],[window_pointsbtf[1][-1]]]
+    aisle_pointsftb = [[window_pointsftb[0][-1]],[window_pointsbtf[1][-1]]]
+    for i in range(no_rows):
+        new_weight = aisle_pointsbtf[1][-1] + two_pass_weight
+        aisle_pointsbtf[0].append((aisle_pointsbtf[0][-1]*aisle_pointsbtf[1][-1] + xcg_seats_btf[i]*two_pass_weight)/new_weight)
+        aisle_pointsbtf[1].append(new_weight)
+        aisle_pointsftb[0].append((aisle_pointsftb[0][-1]*aisle_pointsftb[1][-1] + xcg_seats_ftb[i]*two_pass_weight)/new_weight)
+        aisle_pointsftb[1].append(new_weight)
+    
+    #Fuel
+    fuel_point = [[aisle_pointsftb[0][-1]],[aisle_pointsftb[1][-1]]]
+    fuel_point[0].append((fuel_point[0][0]*fuel_point[1][0] + xcg_fuel*fuel_weight)/(fuel_weight + fuel_point[1][0]))
+    fuel_point[1].append(fuel_weight + fuel_point[1][0])
+
+    #max values
+    allcg = [OEW_point[0], only_aft_point,only_front_point, both_cargo_point, fuel_point[0][-1]]
+    name_lst = window_pointsbtf[0], window_pointsftb[0], aisle_pointsbtf[0], aisle_pointsftb[0], 
+    for name in name_lst:
+        allcg.append(max(name))
+        allcg.append(min(name))
+    max_cg = max(allcg)
+    min_cg = min(allcg)
+    margin = 1.01
+    max_margin_cg = max_cg * margin
+    min_margin_cg = min_cg / margin
+    max_weight = fuel_point[1][-1]
+    min_weight = OEW
+    
+    
+    #PLOTS
+
+    fig = plt.figure(figsize=(8, 6))
+    plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
+    plt.xlabel('x_cg/MAC [-]')
+    plt.ylabel('Weight [N]')
+    plt.title('Load diagram')
+    plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
+    plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
+    plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
+    plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
+    plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
+    plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
+    plt.vlines(x = max_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder =0, label = 'Margin = 1%')
+    plt.vlines(x = min_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder=0)
+    plt.vlines(x = max_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder= 0)
+    plt.vlines(x = min_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder = 0)
+    plt.xlim(min_margin_cg/1.005, max_margin_cg*1.005)
+    plt.ylim(min_weight/1.02, max_weight*1.02)
+    plt.legend(loc='upper right')
+    plt.grid()
+    plt.show()
+    
+    
+
+
+
+
+
 
 if __name__ == "__main__":
     # Input list of payload mass and known xcg_datum (default values are our experiment)
@@ -101,7 +216,7 @@ if __name__ == "__main__":
 
     xcg_measurement1 = calculate_cg(fuel_used, fuel_start, payload_masses, payload_data)
     print(f"\nElevator Trim Curve: Measurement 1 \nx_cg is {round(xcg_measurement1, 3)} m.")
-
+    test = loaddiagram()
     # Delta xcg calculation, Steven moves between the pilots at 131:
     #   fuel_used1 = 768    # [lbs]
     #   fuel_used2 = 801    # [lbs]
@@ -111,5 +226,6 @@ if __name__ == "__main__":
     xcg1 = calculate_cg(fuel_used1, fuel_start, payload_masses, payload_data)
     xcg2 = calculate_cg(fuel_used2, fuel_start, payload_masses, payload_data2)
     delta_xcg = xcg1 - xcg2
+    #
 
     print(f"\nSteven delta xcg calculation \nThe CG has shifted {round(delta_xcg, 3)} m to the fore of the aircraft.")
