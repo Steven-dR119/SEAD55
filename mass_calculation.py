@@ -95,32 +95,46 @@ def loaddiagram():
     x_LEMAC = 22.866 #m
     MAC = 3.48 #m
     
+    #Cargo Compartments
+    aft_bagg_comp = 14.41 #m3
+    forward_underfloor_baggage = 5.26 #m3
+    under_seat_storage = 4.16 #m3
+    overhead_bins = 5.08 #m3
+    cargo_not_in_cabin = 19.67 #m3
+    
     #Weights
-    OEW = 23188 * g0                   #N 
-    fuel_weight = 8822 * g0            #N 
-    front_cargo_weight = 482.6792 *g0  #N
-    aft_cargo_weight = 1322.321*g0     #N
-    pass_weight = 10605 * g0            #N
+    MTOW = 41640 * g0
+    OEW = 23188 * g0 
+    MaxPayload = 10605 * g0               #N 
+    fuel_weight = MTOW - OEW - MaxPayload            #N 
+    pass_weight = 8800 * g0            #N
     no_pass = 100
     no_chairsprow = 4
     no_rows = int(no_pass / no_chairsprow)
-    
+    front_cargo_weight = (forward_underfloor_baggage/cargo_not_in_cabin)*(MaxPayload-pass_weight)
+    aft_cargo_weight = (aft_bagg_comp/cargo_not_in_cabin)*(MaxPayload-pass_weight)     #N
     #locations
     pass_part_start = 11.6846 #m
     pass_part_end = 35.2796 #m
     
     
     #cg_locations
-    xcg_oew = (24.258 - xcg_datum) / MAC
-    xcg_cargo_front = (15.5026 - xcg_datum) / MAC
-    xcg_cargo_aft = (26.10587 - xcg_datum) / MAC
-    xcg_fuel = (24.6575 - xcg_datum) / MAC
+    xcg_oew = (24.258 - x_LEMAC) / MAC
+    xcg_cargo_front = (15.5026 -  x_LEMAC) / MAC
+    xcg_cargo_aft = (26.10587 -  x_LEMAC) / MAC
+    xcg_fuel = (24.6575 -  x_LEMAC) / MAC
     chair_pitch = (pass_part_end - pass_part_start) / (no_rows*MAC)
-    xcg_seats_btf = [(pass_part_end - xcg_datum)/MAC - 0.5 * chair_pitch]
-    xcg_seats_ftb = [(pass_part_start - xcg_datum)/MAC + 0.5 * chair_pitch]
+    xcg_seats_btf = [(pass_part_end - x_LEMAC)/MAC - 0.5 * chair_pitch]
+    xcg_seats_ftb = [(pass_part_start - x_LEMAC)/MAC + 0.5 * chair_pitch]
     for i in range(no_rows-1):
         xcg_seats_btf.append(xcg_seats_btf[-1]-chair_pitch)
         xcg_seats_ftb.append(xcg_seats_ftb[-1]+chair_pitch)
+    
+    print('oew:  '+ str(xcg_oew))
+    print('xcg_cargo_front:  '+str(xcg_cargo_front))
+    print('xcg_cargo_aft:  '+str(xcg_cargo_aft))
+    print('xcg_fuel:  '+str(xcg_fuel))
+    
     #Loading functions
     OEW_point = [xcg_oew,OEW]
     #add cargo
@@ -164,37 +178,183 @@ def loaddiagram():
         allcg.append(min(name))
     max_cg = max(allcg)
     min_cg = min(allcg)
-    margin = 1.01
-    max_margin_cg = max_cg * margin
-    min_margin_cg = min_cg / margin
+    margin = 0.02
+    max_margin_cg = max_cg + margin*MAC
+    min_margin_cg = min_cg - margin*MAC
     max_weight = fuel_point[1][-1]
     min_weight = OEW
-    
+
     
     #PLOTS
 
-    fig = plt.figure(figsize=(8, 6))
+    fig = plt.figure(figsize=(9, 7))
     plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
     plt.xlabel('x_cg/MAC [-]')
     plt.ylabel('Weight [N]')
-    plt.title('Load diagram')
+    plt.title('Load diagram CRJ1000')
     plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
     plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
     plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
     plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
     plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
     plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
-    plt.vlines(x = max_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder =0, label = 'Margin = 1%')
+    plt.vlines(x = max_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
     plt.vlines(x = min_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder=0)
     plt.vlines(x = max_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder= 0)
     plt.vlines(x = min_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder = 0)
-    plt.xlim(min_margin_cg/1.005, max_margin_cg*1.005)
+#   plt.xlim(min_margin_cg*0.7, max_margin_cg*1.05)
+#   plt.ylim(min_weight/1.02, max_weight*1.02)
+    plt.legend(loc='upper right')
+    plt.grid()
+    plt.savefig('LoaddiagramCRJ1000.png')
+#    plt.show()
+    
+#def loaddiagram_crjexx():
+    #Constants
+    xcg_datum = 3.6576 #m
+    x_LEMAC = 22.866 #m
+    MAC = 3.48 #m
+    
+    #Cargo Compartments
+    aft_bagg_comp = 14.41 #m3
+    forward_underfloor_baggage = 5.26 #m3
+    under_seat_storage = 4.16 #m3
+    overhead_bins = 5.08 #m3
+    cargo_not_in_cabin = 19.67 #m3
+    
+    #Weights
+    MTOW = 41640 * g0
+    OEW = 23188 * g0
+    MaxPayload = 10605 * g0               #N 
+    fuel_weight = MTOW - OEW - MaxPayload #N
+    pass_weight = 8800 * g0            #N
+    no_pass = 100
+    no_chairsprow = 4
+    no_rows = int(no_pass / no_chairsprow)
+    front_cargo_weight = (forward_underfloor_baggage/cargo_not_in_cabin)*(MaxPayload-pass_weight)
+    aft_cargo_weight = (aft_bagg_comp/cargo_not_in_cabin)*(MaxPayload-pass_weight)     #N
+    
+    #Change 2
+    forward_battery_weight = 1350 * g0    #kg
+    aft_battery_weight = 1650 * g0#kg
+    forward_battery_vol = 0.934 #m3
+    1.142
+    aft_battery_vol = 1096.08*0.0254 - 1.142/(0.0254*2) #m3
+    #locations
+    pass_part_start = 11.6846 #m
+    pass_part_end = 35.2796 #m
+    
+    #Change 1
+    OEW = 0.95 * OEW  
+    
+    #cg_locations
+    xcg_oew = (24.258 - x_LEMAC) / MAC
+    #Change 1
+    xcg_oew = xcg_oew - 0.5/MAC
+    xcg_cargo_front = (15.5026 -  x_LEMAC) / MAC
+    xcg_cargo_aft = (26.10587 -  x_LEMAC) / MAC
+    #Change 3 
+    xcg_bat_forward = xcg_cargo_front - (forward_underfloor_baggage/4 + forward_battery_vol/4)/MAC
+    xcg_bat_aft = (1096.08*0.0254 - 1.142/2 - xcg_datum)/MAC
+    #Change 5
+    xcg_cargo_front = xcg_cargo_front + forward_battery_vol/(2*MAC)
+    xcg_cargo_aft = (1.325445554 + 959.5*0.0254 - xcg_datum)/MAC
+    
+    xcg_fuel = (24.6575 -  x_LEMAC) / MAC
+    chair_pitch = (pass_part_end - pass_part_start) / (no_rows*MAC)
+    xcg_seats_btf = [(pass_part_end - x_LEMAC)/MAC - 0.5 * chair_pitch]
+    xcg_seats_ftb = [(pass_part_start - x_LEMAC)/MAC + 0.5 * chair_pitch]
+    for i in range(no_rows-1):
+        xcg_seats_btf.append(xcg_seats_btf[-1]-chair_pitch)
+        xcg_seats_ftb.append(xcg_seats_ftb[-1]+chair_pitch)
+
+    #Change 4
+    xcg_seats_btf.remove(xcg_seats_btf[0])
+    xcg_seats_ftb.remove(xcg_seats_ftb[-1])
+    
+    #add Batteries
+    xcg_oew = (xcg_oew*OEW + xcg_bat_aft*aft_battery_weight + xcg_bat_forward*forward_battery_weight)/(OEW + aft_battery_weight + forward_battery_weight)
+    OEW = OEW + aft_battery_weight + forward_battery_weight
+    fuel_weight = MTOW - OEW - MaxPayload #N
+    
+    print('oew:  '+ str(xcg_oew))
+    print('xcg_cargo_front:  '+str(xcg_cargo_front))
+    print('xcg_cargo_aft:  '+str(xcg_cargo_aft))
+    print('xcg_fuel:  '+str(xcg_fuel))
+    
+    #Loading functions
+    OEW_point = [xcg_oew,OEW]
+    #add cargo
+    only_aft_point = (xcg_cargo_aft*aft_cargo_weight + xcg_oew*OEW)/(OEW + aft_cargo_weight)
+    only_front_point = (xcg_cargo_front*front_cargo_weight +xcg_oew*OEW)/(OEW + front_cargo_weight)
+    both_cargo_point = (xcg_cargo_aft*aft_cargo_weight + xcg_oew*OEW + xcg_cargo_front*front_cargo_weight)/(OEW + front_cargo_weight + aft_cargo_weight)
+    cargo_points = [[OEW_point[0], only_aft_point, both_cargo_point, only_front_point, OEW_point[0]],[OEW, OEW + front_cargo_weight, OEW + front_cargo_weight + aft_cargo_weight, OEW + aft_cargo_weight,OEW]]
+    
+    #Add passengers
+    #Window
+    two_pass_weight = (pass_weight/(no_pass-4))*2 #change 5
+    
+    window_pointsbtf = [[both_cargo_point],[OEW + front_cargo_weight + aft_cargo_weight]]
+    window_pointsftb = [[both_cargo_point],[OEW + front_cargo_weight + aft_cargo_weight]]
+    for i in range(no_rows-1):
+        new_weight = window_pointsbtf[1][-1] + two_pass_weight
+        window_pointsbtf[0].append((window_pointsbtf[0][-1]*window_pointsbtf[1][-1] + xcg_seats_btf[i]*two_pass_weight)/new_weight)
+        window_pointsbtf[1].append(new_weight)
+        window_pointsftb[0].append((window_pointsftb[0][-1]*window_pointsftb[1][-1] + xcg_seats_ftb[i]*two_pass_weight)/new_weight)
+        window_pointsftb[1].append(new_weight)
+    #Aisle
+    aisle_pointsbtf = [[window_pointsbtf[0][-1]],[window_pointsbtf[1][-1]]]
+    aisle_pointsftb = [[window_pointsftb[0][-1]],[window_pointsbtf[1][-1]]]
+    for i in range(no_rows-1):
+        new_weight = aisle_pointsbtf[1][-1] + two_pass_weight
+        aisle_pointsbtf[0].append((aisle_pointsbtf[0][-1]*aisle_pointsbtf[1][-1] + xcg_seats_btf[i]*two_pass_weight)/new_weight)
+        aisle_pointsbtf[1].append(new_weight)
+        aisle_pointsftb[0].append((aisle_pointsftb[0][-1]*aisle_pointsftb[1][-1] + xcg_seats_ftb[i]*two_pass_weight)/new_weight)
+        aisle_pointsftb[1].append(new_weight)
+    
+    #Fuel
+    fuel_point = [[aisle_pointsftb[0][-1]],[aisle_pointsftb[1][-1]]]
+    fuel_point[0].append((fuel_point[0][0]*fuel_point[1][0] + xcg_fuel*fuel_weight)/(fuel_weight + fuel_point[1][0]))
+    fuel_point[1].append(fuel_weight + fuel_point[1][0])
+
+    #max values
+    allcg = [OEW_point[0], only_aft_point,only_front_point, both_cargo_point, fuel_point[0][-1]]
+    name_lst = window_pointsbtf[0], window_pointsftb[0], aisle_pointsbtf[0], aisle_pointsftb[0], 
+    for name in name_lst:
+        allcg.append(max(name))
+        allcg.append(min(name))
+    max_cg = max(allcg)
+    min_cg = min(allcg)
+    margin = 0.02
+    max_margin_cg = max_cg + margin*MAC
+    min_margin_cg = min_cg - margin*MAC
+    max_weight = fuel_point[1][-1]
+    min_weight = OEW
+    
+
+    #PLOTS
+
+    fig = plt.figure(figsize=(9, 7))
+    plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
+    plt.xlabel('x_cg/MAC [-]')
+    plt.ylabel('Weight [N]')
+    plt.title('Load diagram CRJEXX')
+    plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
+    plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
+    plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
+    plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
+    plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
+    plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
+    plt.vlines(x = max_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
+    plt.vlines(x = min_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder=0)
+    plt.vlines(x = max_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder= 0)
+    plt.vlines(x = min_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder = 0)
+    plt.xlim(min_margin_cg*0.5, max_margin_cg*1.05)
     plt.ylim(min_weight/1.02, max_weight*1.02)
     plt.legend(loc='upper right')
     plt.grid()
+    plt.savefig('LoaddiagramCRJEXX.png')
     plt.show()
-    
-    
 
 
 
@@ -214,9 +374,10 @@ if __name__ == "__main__":
     fuel_used = 2406.487894  # [N]
     fuel_start = 18015.29754  # [N]
 
-    xcg_measurement1 = calculate_cg(fuel_used, fuel_start, payload_masses, payload_data)
-    print(f"\nElevator Trim Curve: Measurement 1 \nx_cg is {round(xcg_measurement1, 3)} m.")
+    #xcg_measurement1 = calculate_cg(fuel_used, fuel_start, payload_masses, payload_data)
+    #print(f"\nElevator Trim Curve: Measurement 1 \nx_cg is {round(xcg_measurement1, 3)} m.")
     test = loaddiagram()
+    test2 = loaddiagram_crjexx()
     # Delta xcg calculation, Steven moves between the pilots at 131:
     #   fuel_used1 = 768    # [lbs]
     #   fuel_used2 = 801    # [lbs]
