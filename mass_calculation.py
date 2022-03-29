@@ -224,10 +224,11 @@ def loaddiagram_crjexx():
     
     #Weights
     MTOW = 41640 * g0
-    OEW = 23188 * g0
-    MaxPayload = 10605 * g0               #N 
-    fuel_weight = MTOW - OEW - MaxPayload #N
-    pass_weight = 8800 * g0            #N
+    OEW = 22028.6 * g0    
+    MaxPayload = 10253 * g0           #N 
+    fuel_weight = MTOW - OEW - 1350*g0 - 1650*g0 - MaxPayload #N
+    print(fuel_weight/9.80665)
+    pass_weight = (8800 - 88*4) * g0            #N
     no_pass = 100
     no_chairsprow = 4
     no_rows = int(no_pass / no_chairsprow)
