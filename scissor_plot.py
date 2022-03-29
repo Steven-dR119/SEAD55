@@ -9,17 +9,19 @@ def read_data(refdata):
     return dimensions
 
 
-def plot_scissor(x_ac, CL_ah, CL_a, de_da, l_h, MAC, Vh_V, SM):
+def plot_scissor(x_ac, CL_ah, CL_a, de_da, l_h, MAC, Vh_V, SM, CL_h, Cmac):
     Sh_S = np.linspace(0, 0.8, 1000)
     x_np = CL_ah / CL_a * (1-de_da) * l_h/MAC * Vh_V**2 * Sh_S + x_ac
-    print(x_np)
     x_cg = x_np - SM
-    print(x_cg)
+    x_cg_control = CL_h / CL_a * (1-de_da) * l_h/MAC * Vh_V**2 * Sh_S + x_ac - Cmac/CL_ah
+
     plt.figure(1)
     plt.plot(x_np, Sh_S, color='b')
     plt.plot(x_cg, Sh_S, color='orange')
+    plt.plot(x_cg_control, Sh_S, color='green')
     plt.xlabel("X_cg/MAC")
     plt.ylabel("Sh/S")
+    plt.savefig("ScissorPlot")
     plt.show()
 
 
@@ -38,4 +40,7 @@ if __name__ == "__main__":
     x_ac = data.iloc[5]
     MAC = data.iloc[6]
 
-    plot_scissor(x_ac, CL_ah, CL_a, de_da, lh, MAC, Vh_V, SM)
+    CL_h = -0.8
+    Cmac = -0.8
+
+    plot_scissor(x_ac, CL_ah, CL_a, de_da, lh, MAC, Vh_V, SM, CL_h, Cmac)
