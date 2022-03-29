@@ -199,10 +199,14 @@ def loaddiagram():
     plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
     plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
     plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
-    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, color = 'b', zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
-    plt.vlines(x = min_cg, ymin = 225000, ymax = 440000, color = 'b', zorder=0)
-    plt.vlines(x = max_margin_cg, ymin = 225000, ymax = 440000, color = 'b', zorder= 0)
-    plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, color = 'b', zorder = 0)
+    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
+    plt.vlines(x = min_cg, ymin = 225000, ymax = 440000, zorder=0)
+    plt.vlines(x = max_margin_cg, ymin = 225000, ymax = 440000, zorder= 0)
+    plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, zorder = 0)
+    plt.xlim(-0.1, 0.6)
+    plt.ylim(225000, 440000)
+    plt.grid()
+    plt.show()
     
     #Constants
     xcg_datum = 3.6576 #m
