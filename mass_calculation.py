@@ -202,14 +202,14 @@ def loaddiagram():
     plt.vlines(x = min_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder=0)
     plt.vlines(x = max_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder= 0)
     plt.vlines(x = min_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder = 0)
-#   plt.xlim(min_margin_cg*0.7, max_margin_cg*1.05)
-#   plt.ylim(min_weight/1.02, max_weight*1.02)
+    plt.xlim(min_margin_cg*0.7, max_margin_cg*1.05)
+    plt.ylim(min_weight/1.02, max_weight*1.02)
     plt.legend(loc='upper right')
     plt.grid()
     plt.savefig('LoaddiagramCRJ1000.png')
-#    plt.show()
+    plt.show()
     
-#def loaddiagram_crjexx():
+def loaddiagram_crjexx():
     #Constants
     xcg_datum = 3.6576 #m
     x_LEMAC = 22.866 #m
