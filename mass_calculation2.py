@@ -192,25 +192,18 @@ def loaddiagram():
     plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
     plt.xlabel('x_cg/MAC [-]')
     plt.ylabel('Weight [N]')
-    plt.title('Load diagram CRJ1000')
+    plt.title('Load diagram Both ')
     plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
     plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
     plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
     plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
     plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
     plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
-    plt.vlines(x = max_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
-    plt.vlines(x = min_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder=0)
-    plt.vlines(x = max_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder= 0)
-    plt.vlines(x = min_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder = 0)
-    plt.xlim(min_margin_cg*0.7, max_margin_cg*1.05)
-    plt.ylim(min_weight/1.02, max_weight*1.02)
-    plt.legend(loc='upper right')
-    plt.grid()
-    plt.savefig('LoaddiagramCRJ1000.png')
-    plt.show()
+    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, color = 'b', zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
+    plt.vlines(x = min_cg, ymin = 225000, ymax = 440000, color = 'b', zorder=0)
+    plt.vlines(x = max_margin_cg, ymin = 225000, ymax = 440000, color = 'b', zorder= 0)
+    plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, color = 'b', zorder = 0)
     
-def loaddiagram_crjexx():
     #Constants
     xcg_datum = 3.6576 #m
     x_LEMAC = 22.866 #m
@@ -339,27 +332,21 @@ def loaddiagram_crjexx():
     
 
     #PLOTS
-
-    fig = plt.figure(figsize=(9, 7))
     plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
-    plt.xlabel('x_cg/MAC [-]')
-    plt.ylabel('Weight [N]')
-    plt.title('Load diagram CRJEXX')
     plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
     plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
     plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
     plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
     plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
     plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
-    plt.vlines(x = max_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
-    plt.vlines(x = min_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder=0)
-    plt.vlines(x = max_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder= 0)
-    plt.vlines(x = min_margin_cg, ymin = min_weight/1.02, ymax = max_weight*1.02, zorder = 0)
-    plt.xlim(min_margin_cg*2, max_margin_cg*1.05)
-    plt.ylim(min_weight/1.02, max_weight*1.02)
-    plt.legend(loc='upper right')
+    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
+    plt.vlines(x = min_cg, ymin = 225000, ymax = 440000, zorder=0)
+    plt.vlines(x = max_margin_cg, ymin = 225000, ymax = 440000, zorder= 0)
+    plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, zorder = 0)
+    plt.xlim(-0.1, 0.6)
+    plt.ylim(225000, 440000)
     plt.grid()
-    plt.savefig('LoaddiagramCRJEXX.png')
+    plt.savefig('LoaddiagramCOMBINED.png')
     plt.show()
 
 
@@ -384,7 +371,7 @@ if __name__ == "__main__":
     #xcg_measurement1 = calculate_cg(fuel_used, fuel_start, payload_masses, payload_data)
     #print(f"\nElevator Trim Curve: Measurement 1 \nx_cg is {round(xcg_measurement1, 3)} m.")
     test = loaddiagram()
-    test2 = loaddiagram_crjexx()
+    #test2 = loaddiagram_crjexx()
     # Delta xcg calculation, Steven moves between the pilots at 131:
     #   fuel_used1 = 768    # [lbs]
     #   fuel_used2 = 801    # [lbs]
