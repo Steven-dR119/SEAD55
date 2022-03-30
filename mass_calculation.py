@@ -179,9 +179,13 @@ def loaddiagram():
         allcg.append(min(name))
     max_cg = max(allcg)
     min_cg = min(allcg)
+    print(max_cg)
+    print(min_cg)
     margin = 0.02
-    max_margin_cg = max_cg + margin*MAC
-    min_margin_cg = min_cg - margin*MAC
+    max_margin_cg = max_cg *(1+margin)
+    print(max_margin_cg)
+    min_margin_cg = min_cg * (1-margin)
+    print(min_margin_cg)
     max_weight = fuel_point[1][-1]
     min_weight = OEW
 
@@ -199,11 +203,11 @@ def loaddiagram():
     plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
     plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
     plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
-    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
+    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'%'+'\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
     plt.vlines(x = min_cg, ymin = 225000, ymax = 440000, zorder=0)
     plt.vlines(x = max_margin_cg, ymin = 225000, ymax = 440000, zorder= 0)
     plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, zorder = 0)
-    plt.xlim(-0.1, 0.6)
+    plt.xlim(0, 0.6)
     plt.ylim(225000, 440000)
     plt.legend(loc='upper right')
     plt.grid()
@@ -332,8 +336,12 @@ def loaddiagram_crjexx():
     max_cg = max(allcg)
     min_cg = min(allcg)
     margin = 0.02
-    max_margin_cg = max_cg + margin*MAC
-    min_margin_cg = min_cg - margin*MAC
+    max_margin_cg = max_cg * (1+margin)
+    min_margin_cg = min_cg * (1-margin)
+    print(max_cg)
+    print(max_margin_cg)
+    print(min_cg)
+    print(min_margin_cg)
     max_weight = fuel_point[1][-1]
     min_weight = OEW
     
@@ -351,11 +359,11 @@ def loaddiagram_crjexx():
     plt.plot(aisle_pointsbtf[0],aisle_pointsbtf[1], 'k', marker = 'o', zorder = 2, label = 'Aisle passengers btf')
     plt.plot(aisle_pointsftb[0],aisle_pointsftb[1], 'm', marker = 'D', zorder = 1, label = 'Aisle passengers ftb')
     plt.plot(fuel_point[0],fuel_point[1], 'b', marker = 'D', zorder = 0, label = 'Fuel')
-    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'% or '+str(round(margin*MAC*100,4))+' [cm]\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
+    plt.vlines(x = max_cg, ymin = 225000, ymax = 440000, zorder =0, label = 'Margin = '+ str(round((margin)*100,2))+'%'+'\nMaxCG = '+str(round(max_margin_cg,4))+'\nMinCG = '+str(round(min_margin_cg,4)))
     plt.vlines(x = min_cg, ymin = 225000, ymax = 440000, zorder=0)
     plt.vlines(x = max_margin_cg, ymin = 225000, ymax = 440000, zorder= 0)
     plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, zorder = 0)
-    plt.xlim(-0.1, 0.6)
+    plt.xlim(0, 0.6)
     plt.ylim(225000, 440000)
     plt.legend(loc='upper right')
     plt.grid()
