@@ -16,9 +16,12 @@ def plot_scissor(x_ac, CL_ah, CL_a, de_da, l_h, MAC, Vh_V, SM, CL_h, Cmac, CL_w)
     x_cg_control = CL_h / CL_w * (1-de_da) * l_h/MAC * Vh_V**2 * Sh_S + x_ac - Cmac/CL_w
 
     plt.figure(1)
-    plt.plot(x_np, Sh_S, color='b')
-    plt.plot(x_cg, Sh_S, color='orange')
-    plt.plot(x_cg_control, Sh_S, color='green')
+    plt.plot(x_np, Sh_S, color='b', label='Stability')
+    plt.plot(x_cg, Sh_S, color='orange', label='Stability with safety margin')
+    plt.plot(x_cg_control, Sh_S, color='green', label='controllability')
+    plt.xlim(left=0.0)
+    plt.xlim(right=1.0)
+    plt.legend()
     plt.xlabel("X_cg/MAC")
     plt.ylabel("Sh/S")
     plt.savefig("ScissorPlot")
@@ -41,6 +44,6 @@ if __name__ == "__main__":
 
     CL_w = 1.47
     CL_h = -0.8
-    Cmac = -0.2736
+    Cmac = -0.273610357
 
     plot_scissor(x_ac, CL_ah, CL_a, de_da, lh, MAC, Vh_V, SM, CL_h, Cmac, CL_w)
