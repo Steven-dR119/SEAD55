@@ -192,7 +192,7 @@ def loaddiagram():
     plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
     plt.xlabel('x_cg/MAC [-]')
     plt.ylabel('Weight [N]')
-    plt.title('Load diagram CRJ1000')
+    plt.title('Load diagram Both ')
     plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
     plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
     plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
@@ -205,12 +205,9 @@ def loaddiagram():
     plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, zorder = 0)
     plt.xlim(-0.1, 0.6)
     plt.ylim(225000, 440000)
-    plt.legend(loc='upper right')
     plt.grid()
-    plt.savefig('LoaddiagramCRJ1000.png')
     plt.show()
     
-def loaddiagram_crjexx():
     #Constants
     xcg_datum = 3.6576 #m
     x_LEMAC = 22.866 #m
@@ -339,12 +336,7 @@ def loaddiagram_crjexx():
     
 
     #PLOTS
-
-    fig = plt.figure(figsize=(9, 7))
     plt.scatter(xcg_oew, OEW, zorder = 6, label='OEW')
-    plt.xlabel('x_cg/MAC [-]')
-    plt.ylabel('Weight [N]')
-    plt.title('Load diagram CRJEXX')
     plt.plot(cargo_points[0],cargo_points[1], 'r', marker = 'x', zorder = 5, label = 'Cargo')
     plt.plot(window_pointsbtf[0],window_pointsbtf[1], 'g', marker = 'o', zorder = 4, label = 'Window passengers btf')
     plt.plot(window_pointsftb[0],window_pointsftb[1], 'c', marker = 'D', zorder = 3, label = 'Window passengers ftb')
@@ -357,9 +349,8 @@ def loaddiagram_crjexx():
     plt.vlines(x = min_margin_cg, ymin = 225000, ymax = 440000, zorder = 0)
     plt.xlim(-0.1, 0.6)
     plt.ylim(225000, 440000)
-    plt.legend(loc='upper right')
     plt.grid()
-    plt.savefig('LoaddiagramCRJEXX.png')
+    plt.savefig('LoaddiagramCOMBINED.png')
     plt.show()
 
 
@@ -384,7 +375,7 @@ if __name__ == "__main__":
     #xcg_measurement1 = calculate_cg(fuel_used, fuel_start, payload_masses, payload_data)
     #print(f"\nElevator Trim Curve: Measurement 1 \nx_cg is {round(xcg_measurement1, 3)} m.")
     test = loaddiagram()
-    test2 = loaddiagram_crjexx()
+    #test2 = loaddiagram_crjexx()
     # Delta xcg calculation, Steven moves between the pilots at 131:
     #   fuel_used1 = 768    # [lbs]
     #   fuel_used2 = 801    # [lbs]
